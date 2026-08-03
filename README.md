@@ -108,3 +108,18 @@ cp .env.example .env
 
   - Note: Ensure your .env file is added to your .gitignore to prevent committing secrets to version control.
 
+## Build & Run
+
+Start the LLM Services:
+
+  - Make `start_llms.sh` executable
+
+```shell
+chmod +x start_llms.sh
+```
+  
+  - Run `start_llms.sh`
+
+```shell
+./start_llms.sh
+```
