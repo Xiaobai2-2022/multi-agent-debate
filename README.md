@@ -86,6 +86,25 @@ reasoning capabilities within the local environment.
 
 ### Environment Setup
 
-- 
+1. Clone the Repository:
 
+```shell
+git clone https://github.com/Xiaobai2-2022/multi-agent-debate
+```
+
+2. Configure Environment Variables:
+
+The Docker Compose environment relies on an .env file to 
+securely manage your Hugging Face authentication and model 
+configurations.
+
+   - Copy the example environment file:
+
+```shell
+cp .env.example .env
+```
+
+  - Open the `.env` file and populate it. You must provide a valid Hugging Face access token (`HF_TOKEN`) because you are utilizing models like Qwen3 that may require license agreements or authentication.
+
+  - Note: Ensure your .env file is added to your .gitignore to prevent committing secrets to version control.
 
