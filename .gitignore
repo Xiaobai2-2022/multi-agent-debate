@@ -1,0 +1,12 @@
+# Intellij Settings
+.idea
+
+# Hugging Face Cache
+hf-cache
+
+# Logs
+logs
+
+# Environment Setting File
+.env
+

@@ -1,0 +1,120 @@
+name: multi-agent-debate
+
+x-vllm-common: &vllm-common
+  restart: unless-stopped
+  ipc: host
+  shm_size: "16gb"
+  gpus: all
+
+  environment:
+    HF_TOKEN: ${HF_TOKEN}
+    HUGGING_FACE_HUB_TOKEN: ${HF_TOKEN}
+    HF_HOME: /root/.cache/huggingface
+    TOKENIZERS_PARALLELISM: "false"
+
+  volumes:
+    - ./hf-cache:/root/.cache/huggingface
+    - ./logs:/logs
+
+  networks:
+    - debate
+
+services:
+  qwen-coder:
+    <<: *vllm-common
+    image: ${VLLM_IMAGE}
+    container_name: debate-qwen-coder
+
+    entrypoint:
+      - vllm
+      - serve
+
+    ports:
+      - "8101:8000"
+
+    command:
+      - NVFP4/Qwen3-Coder-30B-A3B-Instruct-FP4
+      - --served-model-name
+      - qwen-coder
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "8000"
+      - --dtype
+      - auto
+      - --max-model-len
+      - "16384"
+      - --max-num-seqs
+      - "1"
+      - --gpu-memory-utilization
+      - "0.25"
+      - --enable-prefix-caching
+      - --trust-remote-code
+      - --enable-auto-tool-choice
+      - --tool-call-parser
+      - qwen3_coder
+
+  deepseek:
+    <<: *vllm-common
+    image: ${VLLM_IMAGE}
+    container_name: debate-deepseek
+
+    entrypoint:
+      - vllm
+      - serve
+
+    ports:
+      - "8102:8000"
+
+    command:
+      - deepseek-ai/DeepSeek-Coder-V2-Lite-Instruct
+      - --served-model-name
+      - deepseek
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "8000"
+      - --max-model-len
+      - "16384"
+      - --max-num-seqs
+      - "1"
+      - --gpu-memory-utilization
+      - "0.25"
+      - --enable-prefix-caching
+      - --trust-remote-code
+
+  gpt-oss:
+    <<: *vllm-common
+    image: ${VLLM_IMAGE}
+    container_name: debate-gpt-oss
+
+    ports:
+      - "8103:8000"
+
+    # Keep this explicit because the old NVIDIA image may use
+    # a different default entrypoint.
+    entrypoint:
+      - vllm
+      - serve
+
+    command:
+      - openai/gpt-oss-20b
+      - --served-model-name
+      - gpt-oss
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "8000"
+      - --dtype
+      - auto
+      - --max-model-len
+      - "16384"
+      - --max-num-seqs
+      - "1"
+      - --gpu-memory-utilization
+      - "0.35"
+      - --enable-prefix-caching
+
+networks:
+  debate:
+    driver: bridge
